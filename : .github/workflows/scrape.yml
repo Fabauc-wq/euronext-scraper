@@ -1,0 +1,27 @@
+name: Scrape Euronext EBM-DPAR
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # toutes les 15 minutes
+  workflow_dispatch:          # permet de lancer le job manuellement pour tester
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer les dépendances
+        run: |
+          pip install playwright requests
+          playwright install chromium --with-deps
+
+      - name: Lancer le scraper
+        env:
+          WEBAPP_URL: ${{ secrets.WEBAPP_URL }}
+          WEBAPP_SECRET: ${{ secrets.WEBAPP_SECRET }}
+        run: python scraper.py
